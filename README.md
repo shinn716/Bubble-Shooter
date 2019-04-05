@@ -1,2 +1,2 @@
 # Bubble-Shooter
-Bubble-Shooter-Test
+<img src="https://github.com/shinn716/Bubble-Shooter/blob/master/gif2.gif" /></a>  
