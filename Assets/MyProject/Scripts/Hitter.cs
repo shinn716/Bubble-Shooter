@@ -3,21 +3,31 @@ using System.Collections;
 
 public class Hitter : MonoBehaviour
 {
+    public SpriteRenderer spHint;
     public Sprite[] sp;
 	public int kind;
     public GameObject parent;
 
     private bool m_hitflag = false;
-	//public Sprite specialBubble;
+    private SpriteRenderer thissprenderer;
+    //public Sprite specialBubble;
 
-	void Start()
+    private void Awake()
+    {
+        thissprenderer = GetComponent<SpriteRenderer>();
+        spHint = GameObject.Find("Next-hint").GetComponent<SpriteRenderer>();
+        kind = (int)Random.Range(1f, 6f);
+    }
+
+    void Start()
 	{
+        spHint.sprite = sp[kind-1];
+        thissprenderer.enabled = false;
+
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
 		if (spriteRenderer != null)
 		{
 			Color[] colorArray = new Color[] { Color.red, Color.cyan, Color.yellow, Color.green, Color.magenta };
-
-			kind = (int)Random.Range(1f, 6f);
             spriteRenderer.sprite = sp[kind - 1];
 
    //         if (kind == 6)

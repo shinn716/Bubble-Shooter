@@ -12,6 +12,7 @@ public class Launcher : MonoBehaviour
 
     [Header("Falling")]
     public bool atuoFalling = true;
+    public float falldownDistance = .25f;
 
     [HideInInspector]
     public bool startShooting = true;
@@ -19,6 +20,7 @@ public class Launcher : MonoBehaviour
     private GridManager grid;
     private float nextFire = 0.0F;
     private int count = 0;
+    private GameObject gotemp;
 
     private void Start()
 	{
@@ -30,18 +32,25 @@ public class Launcher : MonoBehaviour
 	{
 		Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		Vector2 delta = mousePos - new Vector2(transform.position.x, transform.position.y);
-		transform.rotation = Quaternion.Euler(0f, 0f, -Mathf.Rad2Deg * Mathf.Atan2(delta.x, delta.y));
+
+        float clampValue = Mathf.Clamp(-Mathf.Rad2Deg * Mathf.Atan2(delta.x, delta.y), -45, 45);
+		transform.rotation = Quaternion.Euler(0f, 0f, clampValue);
 
         if (Input.GetMouseButtonDown(0) && Time.time > nextFire && startShooting)
         {
+            /// Shoot cool down
             nextFire = Time.time + fireRate;
             Fire();
-            count++;
 
+            /// Show ball sprite
+            gotemp.GetComponent<SpriteRenderer>().enabled = true;
+
+            ///  Falling 
+            count++;
             if (count==3)
             {
                 count = 0;
-                FallingDown(grid.initialPos.y, grid.initialPos.y-.5f);
+                FallingDown(grid.initialPos.y, grid.initialPos.y - falldownDistance);
             }
         }
     }
@@ -53,16 +62,17 @@ public class Launcher : MonoBehaviour
 		{
             nextBubble = (GameObject)Instantiate(Bubble_shootball, transform.position, transform.rotation);
             nextBubble.SetActive(true);
+            gotemp = nextBubble;
 
-			CircleCollider2D collider = nextBubble.GetComponent<CircleCollider2D>();
+            CircleCollider2D collider = nextBubble.GetComponent<CircleCollider2D>();
 			if (collider != null)
 				collider.enabled = false;
 
 			Hitter hitter = nextBubble.GetComponent<Hitter>();
-            
+
             if (hitter != null)
 				hitter.parent = gameObject;
-		}
+        }
 	}
 
 
