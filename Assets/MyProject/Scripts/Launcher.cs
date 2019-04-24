@@ -33,7 +33,7 @@ public class Launcher : MonoBehaviour
 		Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		Vector2 delta = mousePos - new Vector2(transform.position.x, transform.position.y);
 
-        float clampValue = Mathf.Clamp(-Mathf.Rad2Deg * Mathf.Atan2(delta.x, delta.y), -45, 45);
+        float clampValue = Mathf.Clamp(-Mathf.Rad2Deg * Mathf.Atan2(delta.x, delta.y), -60, 60);
 		transform.rotation = Quaternion.Euler(0f, 0f, clampValue);
 
         if (Input.GetMouseButtonDown(0) && Time.time > nextFire && startShooting)
