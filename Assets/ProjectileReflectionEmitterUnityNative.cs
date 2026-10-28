@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,29 +18,16 @@ public class ProjectileReflectionEmitterUnityNative : MonoBehaviour
     public int maxReflectionCount = 5;
     public float maxStepDistance = 200;
 
-    //[Header("Show raycast point In GameView")]
-    //public GameObject prefab;
-    //private GameObject[] obpos;
-
-    //private void Start()
-    //{
-    //    obpos = new GameObject[20];
-    //    for (int i=0; i<20; i++)        
-    //        obpos[i] = Instantiate(prefab);
-        
-    //}
-
     void OnDrawGizmos()
     {
+        #if UNITY_EDITOR
         Handles.color = Color.red;
         Handles.ArrowHandleCap(0, this.transform.position + this.transform.forward * 0.25f, this.transform.rotation, 0.5f, EventType.Repaint);
+        #endif
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(this.transform.position, 0.25f);
         
         DrawPredictedReflectionPattern(this.transform.position + this.transform.forward * 0.75f, this.transform.forward, maxReflectionCount);
-
-        //for (int i = 0; i < 20; i++)
-        //    obpos[i].transform.position = this.transform.position + this.transform.forward * 0.75f;
     }
 
     private void DrawPredictedReflectionPattern(Vector3 position, Vector3 direction, int reflectionsRemaining)
@@ -61,11 +50,10 @@ public class ProjectileReflectionEmitterUnityNative : MonoBehaviour
         }
         else        
             position += direction * maxStepDistance;
-        
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(startingPosition, position);
 
         DrawPredictedReflectionPattern(position, direction, reflectionsRemaining - 1);
     }
-}
+}

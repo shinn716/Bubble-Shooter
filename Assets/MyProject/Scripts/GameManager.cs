@@ -1,16 +1,32 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour {
-    
+public class GameManager : MonoBehaviour
+{
     public void AppReload()
     {
-        Application.LoadLevel(0);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-     
-    public void Debug()
+
+    public void ReloadSceneByIndex(int sceneIndex)
     {
-        print("debug");
+        SceneManager.LoadScene(sceneIndex);
+    }
+
+    public void QuitGame()
+    {
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #else
+        Application.Quit();
+        #endif
+    }
+
+    public void DebugLog(string message = "debug")
+    {
+        print(message);
     }
 }
+

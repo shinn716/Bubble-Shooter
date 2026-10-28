@@ -1,58 +1,84 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Hitter : MonoBehaviour
 {
     public SpriteRenderer spHint;
     public Sprite[] sp;
-	public int kind;
+    public int kind;
     public GameObject parent;
 
     private bool m_hitflag = false;
     private SpriteRenderer thissprenderer;
-    //public Sprite specialBubble;
+    private float m_lifeTimer = 0f;
+    private const float MAX_FLIGHT_TIME = 8.0f;
 
     private void Awake()
     {
         thissprenderer = GetComponent<SpriteRenderer>();
-        spHint = GameObject.Find("Next-hint").GetComponent<SpriteRenderer>();
-        kind = (int)Random.Range(1f, 6f);
+        if (spHint == null)
+        {
+            GameObject hintObj = GameObject.Find("Next-hint");
+            if (hintObj != null)
+            {
+                spHint = hintObj.GetComponent<SpriteRenderer>();
+            }
+        }
+        kind = Random.Range(1, 6);
     }
 
     void Start()
-	{
-        spHint.sprite = sp[kind-1];
-        thissprenderer.enabled = false;
+    {
+        if (spHint != null && sp != null && kind - 1 >= 0 && kind - 1 < sp.Length)
+        {
+            spHint.sprite = sp[kind - 1];
+        }
 
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-		if (spriteRenderer != null)
-		{
-			Color[] colorArray = new Color[] { Color.red, Color.cyan, Color.yellow, Color.green, Color.magenta };
-            spriteRenderer.sprite = sp[kind - 1];
-
-   //         if (kind == 6)
-			//{
-			//	spriteRenderer.sprite = specialBubble;
-			//}
-			//else
-			//{
-   //             spriteRenderer.color = colorArray[kind - 1];
-   //         }
-		}
-	}
-
-	void OnTriggerEnter2D(Collider2D collider)
-	{
-		if (collider != null)
-		{
-            if (!m_hitflag && collider.tag == "bubble")
+        if (thissprenderer != null)
+        {
+            thissprenderer.enabled = false;
+            if (sp != null && kind - 1 >= 0 && kind - 1 < sp.Length)
             {
-                m_hitflag = true;
+                thissprenderer.sprite = sp[kind - 1];
+            }
+        }
 
-                CircleCollider2D selfcollider = GetComponent<CircleCollider2D>();
-                if (selfcollider != null)
-                    selfcollider.enabled = false;
+        if (parent == null)
+        {
+            Launcher foundLauncher = FindObjectOfType<Launcher>();
+            if (foundLauncher != null)
+            {
+                parent = foundLauncher.gameObject;
+            }
+        }
+    }
 
+    private void Update()
+    {
+        // Failsafe: if projectile is moving in flight for too long without collision, reload launcher
+        if (thissprenderer != null && thissprenderer.enabled && !m_hitflag)
+        {
+            m_lifeTimer += Time.deltaTime;
+            if (m_lifeTimer > MAX_FLIGHT_TIME || transform.position.y > 20f || transform.position.y < -15f)
+            {
+                RecoverLauncher();
+                Destroy(gameObject);
+            }
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider != null && !m_hitflag && collider.CompareTag("bubble"))
+        {
+            m_hitflag = true;
+
+            CircleCollider2D selfcollider = GetComponent<CircleCollider2D>();
+            if (selfcollider != null)
+                selfcollider.enabled = false;
+
+            if (parent != null)
+            {
                 GridManager gridManager = parent.GetComponent<GridManager>();
                 if (gridManager != null)
                 {
@@ -64,16 +90,24 @@ public class Hitter : MonoBehaviour
                             gridManager.Seek(gridMember.column, -gridMember.row, gridMember.kind);
                     }
                 }
-                Launcher launcher = parent.GetComponent<Launcher>();
-                if (launcher != null)
-                {
-                    launcher.nextBubble = null;
-                    launcher.Load();
-                }
-
-                Destroy(gameObject);
             }
 
-		}
-	}
+            RecoverLauncher();
+            Destroy(gameObject);
+        }
+    }
+
+    private void RecoverLauncher()
+    {
+        if (parent != null)
+        {
+            Launcher launcher = parent.GetComponent<Launcher>();
+            if (launcher != null)
+            {
+                launcher.nextBubble = null;
+                launcher.Load();
+            }
+        }
+    }
 }
+

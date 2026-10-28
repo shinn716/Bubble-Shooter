@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,29 +13,36 @@ public class Score : MonoBehaviour
     private Text m_mytext;
     private bool m_pause = false;
     private bool m_flag = false;
+    private float m_startTime = 0f;
 
     private void Start()
     {
+        m_startTime = Time.time;
         m_mytext = GetComponent<Text>();
         m_myitween = GetComponent<SimpleItween>();
     }
 
     private void Update()
     {
-        if (!m_pause)
+        if (!m_pause && m_mytext != null)
         {
-            float time = Time.time;
-            m_mytext.text = time.ToString("0.0");
+            float elapsed = Time.time - m_startTime;
+            m_mytext.text = elapsed.ToString("0.0");
         }
 
-        if(success.activeSelf || fall.activeSelf)
+        bool isEndState = (success != null && success.activeSelf) || (fall != null && fall.activeSelf);
+        if (isEndState)
         {
             m_pause = true;
             if (!m_flag)
             {
                 m_flag = true;
-                m_myitween.CallStart();
+                if (m_myitween != null)
+                {
+                    m_myitween.CallStart();
+                }
             }
         }
     }
 }
+
